@@ -1,92 +1,92 @@
-## Set up
-### download data using git bash
-```bash
-for month in $(seq -w 1 12); do
-  curl -O "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-${month}.parquet"
-done
-```
-### upload to storage bucket
 
-```bash
-$ gsutil -m cp green_tripdata_2022-*.parquet gs://homework_3_bucket/
-```
 
 ### create external table:
 
 ```sql
-CREATE OR REPLACE EXTERNAL TABLE `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_external_table`
-OPTIONS (
-  format = 'PARQUET',
-  uris = ['gs://homework_3_bucket/*.parquet']
-);
+CREATE OR REPLACE EXTERNAL TABLE
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_external_table` OPTIONS ( format = 'PARQUET',
+    uris = ['gs://homework_3_bucket/*.parquet'] );
+
 ```
 ### Create a native table:
 
 ```sql
-CREATE TABLE `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`
-AS
-SELECT * FROM `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_external_table`;
+CREATE TABLE
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table` AS
+SELECT
+  *
+FROM
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_external_table`;
 ```
 
 #### Q1:
 ```sql
 
-SELECT COUNT(*) FROM `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`;
+SELECT COUNT(*) FROM `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`;
 ```
 
 #### Q2:
 ```sql
- SELECT
+SELECT
   DISTINCT count (PULocationID)
 FROM
-  `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_external_table`;
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_external_table`;
 
 SELECT
   DISTINCT count (PULocationID)
 FROM
-  `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`;
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`;
 ```
 
 #### Q3:
 ```sql
-SELECT COUNT(*)
+select PULocationID
 FROM
-  `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`
-WHERE fare_amount=0
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`;
+
+select PULocationID,DOLocationID
+FROM
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`;
 ```
 #### Q4:
 ```sql
-create OR REPLACE table homework_3_data.green_tripdata_2022_clustered_partitioned
-partition by DATE(lpep_pickup_datetime)
-cluster by PUlocationID as (
-  select * from `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`
-);
+SELECT COUNT(*)
+FROM
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`
+WHERE fare_amount=0;
 ```
 #### Q5:
 ```sql
-SELECT DISTINCT PULocationID
-FROM
-  `sigma-icon-447800-e1.homework_3_data.green_taxi_2022_native_table`
-WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';
+create OR REPLACE table homework_3_data.yellow_tripdata_2024_clustered_partitioned
+partition by DATE(tpep_dropoff_datetime)
+cluster by VendorID as (
+  select * from `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`
+);
 ```
-ESTIMATE PROCESS 12.82MB
+
+#### Q6:
 
 ```sql
-SELECT DISTINCT PULocationID
+
+SELECT DISTINCT VendorID
 FROM
-  `sigma-icon-447800-e1.homework_3_data.green_tripdata_2022_clustered_partitioned`
-WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30'
+  `sigma-icon-447800-e1.homework_3_data.yellow_taxi_2024_native_table`
+WHERE DATE(tpep_dropoff_datetime) BETWEEN '2024-03-01' AND '2024-03-15';
+
+
+SELECT DISTINCT VendorID
+FROM
+  `sigma-icon-447800-e1.homework_3_data.yellow_tripdata_2024_clustered_partitioned`
+WHERE DATE(tpep_dropoff_datetime) BETWEEN  '2024-03-01' AND '2024-03-15';
 ```
-ESTIMATE PROCESS 1.12MB
+#### Q7:GCS bucket
 
-#### Q6:GCS bucket
-
-#### Q7: FALSE
+#### Q8: FALSE
 When to Cluster:
 Tables larger than 1 GB.
 Queries frequently filter/sort on specific columns (e.g., user_id, event_date).
 
 
-#### Q8:
+#### Bonus question:
 0 Because BigQuery stores the total number of rows in the table’s metadata. 
 BigQuery can return the result using metadata without actually processing table data.
