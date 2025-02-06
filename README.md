@@ -48,3 +48,32 @@ cluster by VendorID as (
   select * from zoomcamp.green_tripdata
 );
 ```
+### External Table and Native Table
+
+#### Native Table (Managed Table)
+A Native Table in BigQuery is a fully managed table where the data is stored within BigQuery's storage (BigQuery-managed storage).
+
+##### Key Characteristics:
+1. Data is ingested and stored inside BigQuery.
+2. Supports fast querying since it's optimized for BigQuery's storage.
+3. Can be partitioned and clustered for performance optimization.
+4. You are charged for storage and query processing.
+5. Can use materialized views and BI Engine acceleration.
+##### Use Case:
+When you want to store, manage, and optimize data within BigQuery for high performance.
+When performing regular transformations and need better query speeds.
+
+#### External Table
+An External Table allows you to query data stored outside of BigQuery, such as in Google Cloud Storage (GCS), Google Drive, or Bigtable, without loading it into BigQuery.
+
+##### Key Characteristics:
+1. Data remains in its original location (e.g., GCS, Google Drive).
+2. Supports formats like CSV, JSON, Avro, ORC, Parquet.
+3. No storage costs in BigQuery since data is not copied into BigQuery.
+4. Queries may be slower compared to native tables since data is read from an external source.
+5. Some advanced BigQuery features (e.g., clustering, materialized views) are not available.
+   
+##### Use Case:
+1. When working with large datasets in GCS and want to avoid duplication or extra storage costs.
+2. When processing real-time streaming data (e.g., federated queries).
+3. When using ELT workflows, where data is transformed as needed without importing it into BigQuery.
